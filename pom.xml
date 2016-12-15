@@ -7,6 +7,7 @@
 	<modules>
 		<module>cache-core</module>
 		<module>cache-spring</module>
+		<module>cache-guice</module>
 	</modules>
 	<name>cache</name>
 
