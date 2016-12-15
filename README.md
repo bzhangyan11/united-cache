@@ -5,7 +5,7 @@ cache-core </br>
 cache-spring</br>
 提供了与spring相集成的相关功能</br>
 需要启动可以在xml配置文件中加入</br>
-<bean class="org.cacheframework.bootstrap.CacheBootstrap"/> </br>
+<![CDATA[<]]>bean class="org.cacheframework.bootstrap.CacheBootstrap"<![CDATA[/>]]> </br>
 具体使用可以看测试用例</br>
 cache-guice</br>
 提供了与guice的相关集成（待开发）</br>
