@@ -161,4 +161,15 @@ public class CacheTest {
         Assert.assertEquals(b1, this.cacheServiceCopyTest.autoIncrement());
     }
 
+    @Test
+    public void testPOJOParam(){
+        Assert.assertEquals(this.cacheServiceTest.testPojoParam(new TestPojoParam(1)),this
+                .cacheServiceTest.testPojoParam(new TestPojoParam(1)));
+
+        Assert.assertNotEquals(this.cacheServiceTest.testPojoParam(new TestPojoParam(1)),this
+                .cacheServiceTest.testPojoParam(new TestPojoParam(2)));
+
+        Assert.assertNotEquals(this.cacheServiceTest.testPojoParam(null),this.cacheServiceTest
+                .testPojoParam(null));
+    }
 }

@@ -54,4 +54,8 @@ public class CacheServiceTest {
         throw exception;
     }
 
+    @SoftCache
+    public int testPojoParam(TestPojoParam testPojoParam){
+        return ++a;
+    }
 }

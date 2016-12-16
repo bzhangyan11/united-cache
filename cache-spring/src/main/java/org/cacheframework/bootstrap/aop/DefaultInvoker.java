@@ -97,8 +97,14 @@ public class DefaultInvoker implements IInvoker {
                                  ICacheKeyResolver cacheKeyResolver) {
                 ICache cache = cacheContext.getCache(invocation.getMethod());
 
-                Object result = cache.get(cacheKeyResolver.resolve(invocation.getMethod(),
-                        invocation.getArguments()));
+                Object key = cacheKeyResolver.resolve(invocation.getMethod(),
+                        invocation.getArguments());
+
+                Object result = null;
+                if(null != key){
+                    result = cache.get(key);
+                }
+
                 if (null != result) {
                     return NULL_OBJECT == result ? null : result;
                 }
@@ -109,8 +115,10 @@ public class DefaultInvoker implements IInvoker {
                     throw wrapException(throwable);
                 }
 
-                cache.put(cacheKeyResolver.resolve(invocation.getMethod(), invocation
-                        .getArguments()), null == result ? NULL_OBJECT : result);
+                if(null != key){
+                    cache.put(cacheKeyResolver.resolve(invocation.getMethod(), invocation
+                            .getArguments()), null == result ? NULL_OBJECT : result);
+                }
 
                 return result;
             }

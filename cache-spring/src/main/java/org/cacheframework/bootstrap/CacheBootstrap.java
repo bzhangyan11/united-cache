@@ -70,12 +70,17 @@ public class CacheBootstrap {
      *
      * @see InterfaceCacheKeyResolver
      * @see VoidCacheKeyResolver
-     * @see JsonCacheKeyResolver 未实现
+     * @see JsonCacheKeyResolver
      * @see ToStringAnnotationCacheKeyResolver 未实现
      */
     public ICacheKeyResolver getCacheKeyResolver(){
         return new CacheKeyResolverCachingComposite(Arrays.asList(voidCacheKeyResolver(),
-                interfaceCacheKeyResolver()));
+                interfaceCacheKeyResolver(),jsonCacheKeyResolver()));
+    }
+
+    @Bean
+    public JsonCacheKeyResolver jsonCacheKeyResolver(){
+        return new JsonCacheKeyResolver();
     }
 
     @Bean
