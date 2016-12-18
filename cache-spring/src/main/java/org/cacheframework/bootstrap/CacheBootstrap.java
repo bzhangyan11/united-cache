@@ -10,6 +10,7 @@ import org.springframework.aop.PointcutAdvisor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Scope;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.List;
  * @Date:2016/11/30.11:31
  * @Version：V1.0
  */
+@EnableAspectJAutoProxy
 @Configuration
 public class CacheBootstrap {
 
