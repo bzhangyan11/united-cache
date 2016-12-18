@@ -17,7 +17,7 @@ public interface ICacheInterceptor {
      * @param invokeChain 调用链
      * @return 返回结果
      */
-    Object invoke(IInvokeChain invokeChain, ICacheContext cacheContext) throws Throwable;
+    Object invoke(ICacheInterceptorChain invokeChain, ICacheContext cacheContext) throws Throwable;
 
     /**
      * 是否匹配方法调用

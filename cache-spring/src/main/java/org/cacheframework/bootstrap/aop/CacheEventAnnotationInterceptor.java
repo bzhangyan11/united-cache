@@ -27,7 +27,7 @@ public class CacheEventAnnotationInterceptor implements ICacheInterceptor,IMatch
      * @return 返回结果
      */
     @Override
-    public Object invoke(IInvokeChain invokeChain,ICacheContext cacheContext) throws Throwable {
+    public Object invoke(ICacheInterceptorChain invokeChain, ICacheContext cacheContext) throws Throwable {
         if(cacheContext instanceof IDispatchableCacheContext){
             ((IDispatchableCacheContext) cacheContext).fireCacheContextEvenet(buildCacheContextEvent
                     (invokeChain.getInvocation()));

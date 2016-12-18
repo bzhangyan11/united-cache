@@ -8,7 +8,7 @@ import org.aopalliance.intercept.MethodInvocation;
  * @Date:2016/12/18.21:37
  * @Version：V1.0
  */
-public interface IInvokeChain {
+public interface ICacheInterceptorChain {
 
     /**
      * 调用下个调用链

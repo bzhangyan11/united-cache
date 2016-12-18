@@ -2,10 +2,7 @@ package org.cacheframework.bootstrap.aop;
 
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.cacheframework.annotation.CacheContextEvent;
-import org.cacheframework.cache.ICache;
 import org.cacheframework.context.*;
-import org.cacheframework.utils.AnnotationUtils;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 import java.lang.reflect.Method;
@@ -69,7 +66,7 @@ public class DefaultInvoker implements IInvoker {
      * @param invocation 方法调用
      * @return 调用链
      */
-    private IInvokeChain buildInvokeChain(MethodInvocation invocation, ICacheContext cacheContext) {
+    private ICacheInterceptorChain buildInvokeChain(MethodInvocation invocation, ICacheContext cacheContext) {
         List<ICacheInterceptor> cacheInterceptors = this.cacheInterceptorCache.get(invocation.getMethod());
 
         if (null == cacheInterceptors) {
@@ -77,7 +74,7 @@ public class DefaultInvoker implements IInvoker {
             this.cacheInterceptorCache.putIfAbsent(invocation.getMethod(), cacheInterceptors);
         }
 
-        return new DefaultInvokeChain(cacheInterceptors, invocation, cacheContext);
+        return new DefaultCacheInterceptorChain(cacheInterceptors, invocation, cacheContext);
     }
 
     /**
@@ -114,7 +111,7 @@ public class DefaultInvoker implements IInvoker {
          * @return 返回结果
          */
         @Override
-        public Object invoke(IInvokeChain invokeChain, ICacheContext cacheContext) throws Throwable {
+        public Object invoke(ICacheInterceptorChain invokeChain, ICacheContext cacheContext) throws Throwable {
             return invokeChain.getInvocation().proceed();
         }
 

@@ -38,7 +38,7 @@ public class CacheAnnotationInterceptor implements ICacheInterceptor,IMatchingMe
      * @return 返回结果
      */
     @Override
-    public Object invoke(IInvokeChain invokeChain, ICacheContext cacheContext) throws Throwable {
+    public Object invoke(ICacheInterceptorChain invokeChain, ICacheContext cacheContext) throws Throwable {
         ICache cache = cacheContext.getCache(invokeChain.getInvocation().getMethod());
 
         Object key = cacheKeyResolver.resolve(invokeChain.getInvocation().getMethod(),

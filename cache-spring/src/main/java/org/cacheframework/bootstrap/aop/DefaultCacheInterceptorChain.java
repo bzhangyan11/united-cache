@@ -12,7 +12,7 @@ import java.util.List;
  * @Date:2016/12/18.21:42
  * @Version：V1.0
  */
-public class DefaultInvokeChain implements IInvokeChain {
+public class DefaultCacheInterceptorChain implements ICacheInterceptorChain {
 
     private final List<ICacheInterceptor> invokeFilters;
 
@@ -22,7 +22,7 @@ public class DefaultInvokeChain implements IInvokeChain {
 
     private int index = 0;
 
-    public DefaultInvokeChain(List<ICacheInterceptor> invokeFilters, MethodInvocation
+    public DefaultCacheInterceptorChain(List<ICacheInterceptor> invokeFilters, MethodInvocation
             methodInvocation, ICacheContext cacheContext) {
         this.invokeFilters = Collections.unmodifiableList(invokeFilters);
         this.methodInvocation = methodInvocation;
