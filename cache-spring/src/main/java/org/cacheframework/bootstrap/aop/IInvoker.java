@@ -2,6 +2,7 @@ package org.cacheframework.bootstrap.aop;
 
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.cacheframework.context.ICacheContext;
 import org.cacheframework.context.IDispatchableCacheContext;
 
 /**
@@ -18,6 +19,6 @@ public interface IInvoker {
      * @param invocation 方法调用
      * @return 返回值
      */
-    Object invoke(MethodInvocation invocation, IDispatchableCacheContext cacheContext);
+    Object invoke(MethodInvocation invocation,ICacheContext cacheContext);
 
 }

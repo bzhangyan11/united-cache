@@ -162,14 +162,14 @@ public class CacheTest {
     }
 
     @Test
-    public void testPOJOParam(){
-        Assert.assertEquals(this.cacheServiceTest.testPojoParam(new TestPojoParam(1)),this
+    public void testPOJOParam() {
+        Assert.assertEquals(this.cacheServiceTest.testPojoParam(new TestPojoParam(1)), this
                 .cacheServiceTest.testPojoParam(new TestPojoParam(1)));
 
-        Assert.assertNotEquals(this.cacheServiceTest.testPojoParam(new TestPojoParam(1)),this
+        Assert.assertNotEquals(this.cacheServiceTest.testPojoParam(new TestPojoParam(1)), this
                 .cacheServiceTest.testPojoParam(new TestPojoParam(2)));
 
-        Assert.assertNotEquals(this.cacheServiceTest.testPojoParam(null),this.cacheServiceTest
+        Assert.assertNotEquals(this.cacheServiceTest.testPojoParam(null), this.cacheServiceTest
                 .testPojoParam(null));
     }
 }

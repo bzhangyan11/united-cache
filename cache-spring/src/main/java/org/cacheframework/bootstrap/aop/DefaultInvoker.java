@@ -4,13 +4,14 @@ package org.cacheframework.bootstrap.aop;
 import org.aopalliance.intercept.MethodInvocation;
 import org.cacheframework.annotation.CacheContextEvent;
 import org.cacheframework.cache.ICache;
-import org.cacheframework.context.DefaultCacheContextEvent;
-import org.cacheframework.context.ICacheContextEvent;
-import org.cacheframework.context.ICacheKeyResolver;
-import org.cacheframework.context.IDispatchableCacheContext;
+import org.cacheframework.context.*;
 import org.cacheframework.utils.AnnotationUtils;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -22,154 +23,30 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class DefaultInvoker implements IInvoker {
 
-    private static final Object NULL_OBJECT = new Object() {
-        @Override
-        public String toString() {
-            return super.toString() + "null cache object";
-        }
-    };
+    private final List<ICacheInterceptor> allSupportedInterceptor;
 
-    private final ICacheKeyResolver cacheKeyResolver;
-
-    private final ConcurrentMap<Method, MethodType> methodToInvokeTypeCache = new
+    private final ConcurrentMap<Method, List<ICacheInterceptor>> cacheInterceptorCache = new
             ConcurrentHashMap<>();
 
-    public DefaultInvoker(ICacheKeyResolver cacheKeyResolver) {
-        this.cacheKeyResolver = cacheKeyResolver;
+    public DefaultInvoker(List<ICacheInterceptor> allSupportedInterceptor) {
+        this.allSupportedInterceptor = Collections.unmodifiableList(allSupportedInterceptor);
     }
 
     /**
      * 调用方法逻辑
      *
-     * @param invocation   方法调用
-     * @param cacheContext 缓存环境
+     * @param invocation 方法调用
      * @return 返回值
      */
     @Override
-    public Object invoke(MethodInvocation invocation, IDispatchableCacheContext cacheContext) {
-        MethodType methodType = this.getMethodTypeFromMethod(invocation.getMethod());
-
-        return methodType.invokeStrategy.invoke(invocation, cacheContext, cacheKeyResolver);
-    }
-
-    /**
-     * 获得方法调用类型
-     *
-     * @param method 方法
-     * @return 方法类型
-     */
-    private MethodType getMethodTypeFromMethod(Method method) {
-        MethodType methodType = methodToInvokeTypeCache.get(method);
-        if (null != methodType) {
-            return methodType;
-        }
-
-        if (null != AnnotationUtils.findCacheMetaAnnotation(method)) {
-            methodToInvokeTypeCache.putIfAbsent(method, MethodType.CACHE);
-            return MethodType.CACHE;
-        }
-        else if (null != AnnotationUtils.findMetaAnnotaion(method, CacheContextEvent.class)) {
-            methodToInvokeTypeCache.putIfAbsent(method, MethodType.CACHE_CONTEXT_EVENT);
-            return MethodType.CACHE_CONTEXT_EVENT;
-        }
-        else {
-            methodToInvokeTypeCache.putIfAbsent(method, MethodType.NORMAL);
-            return MethodType.NORMAL;
+    public Object invoke(MethodInvocation invocation, ICacheContext cacheContext) {
+        try {
+            return this.buildInvokeChain(invocation, cacheContext).invokeNext();
+        } catch (Throwable throwable) {
+            throw this.wrapException(throwable);
         }
     }
 
-    /**
-     * 执行方法策略
-     */
-    public interface InvokeStrategy {
-        Object invoke(MethodInvocation invocation, IDispatchableCacheContext cacheContext, ICacheKeyResolver
-                cacheKeyResolver);
-    }
-
-    private enum MethodType {
-        /**
-         * 缓存操作
-         */
-        CACHE(new InvokeStrategy() {
-
-            @Override
-            public Object invoke(MethodInvocation invocation, IDispatchableCacheContext cacheContext,
-                                 ICacheKeyResolver cacheKeyResolver) {
-                ICache cache = cacheContext.getCache(invocation.getMethod());
-
-                Object key = cacheKeyResolver.resolve(invocation.getMethod(),
-                        invocation.getArguments());
-
-                Object result = null;
-                if(null != key){
-                    result = cache.get(key);
-                }
-
-                if (null != result) {
-                    return NULL_OBJECT == result ? null : result;
-                }
-
-                try {
-                    result = invocation.proceed();
-                } catch (Throwable throwable) {
-                    throw wrapException(throwable);
-                }
-
-                if(null != key){
-                    cache.put(cacheKeyResolver.resolve(invocation.getMethod(), invocation
-                            .getArguments()), null == result ? NULL_OBJECT : result);
-                }
-
-                return result;
-            }
-        }),
-
-        /**
-         * 刷新缓存操作
-         */
-        CACHE_CONTEXT_EVENT(new InvokeStrategy() {
-            @Override
-            public Object invoke(MethodInvocation invocation, IDispatchableCacheContext cacheContext,
-                                 ICacheKeyResolver cacheKeyResolver) {
-                cacheContext.fireCacheContextEvenet(buildCacheContextEvent
-                        (invocation));
-
-                try {
-                    return invocation.proceed();
-                } catch (Throwable throwable) {
-                    throw wrapException(throwable);
-                }
-            }
-        }),
-
-        /**
-         * 正常操作
-         */
-        NORMAL(new InvokeStrategy() {
-            @Override
-            public Object invoke(MethodInvocation invocation, IDispatchableCacheContext cacheContext,
-                                 ICacheKeyResolver cacheKeyResolver) {
-                try {
-                    return invocation.proceed();
-                } catch (Throwable throwable) {
-                    throw wrapException(throwable);
-                }
-            }
-        });
-
-        private InvokeStrategy invokeStrategy;
-
-        MethodType(InvokeStrategy invokeStrategy) {
-            this.invokeStrategy = invokeStrategy;
-        }
-    }
-
-    private static ICacheContextEvent buildCacheContextEvent(MethodInvocation invocation) {
-        return new DefaultCacheContextEvent(AnnotationUtils.findMetaAnnotaion(invocation.getMethod()
-                , CacheContextEvent.class).eventType(), invocation.getThis().getClass(),
-                invocation.getMethod(), invocation.getThis(), invocation.getArguments(),
-                AnnotationUtils.findAnnotation(invocation.getMethod(), CacheContextEvent.class));
-    }
 
     /**
      * 包装异常
@@ -177,12 +54,79 @@ public class DefaultInvoker implements IInvoker {
      * @param throwable 异常
      * @return 运行时异常
      */
-    private static RuntimeException wrapException(Throwable throwable) {
+    private RuntimeException wrapException(Throwable throwable) {
         if (throwable instanceof RuntimeException) {
             return (RuntimeException) throwable;
         }
         else {
             return new RuntimeException(throwable);
+        }
+    }
+
+    /**
+     * 构造调用链
+     *
+     * @param invocation 方法调用
+     * @return 调用链
+     */
+    private IInvokeChain buildInvokeChain(MethodInvocation invocation, ICacheContext cacheContext) {
+        List<ICacheInterceptor> cacheInterceptors = this.cacheInterceptorCache.get(invocation.getMethod());
+
+        if (null == cacheInterceptors) {
+            cacheInterceptors = this.getAndSortMethodSupportedInterceptors(invocation);
+            this.cacheInterceptorCache.putIfAbsent(invocation.getMethod(), cacheInterceptors);
+        }
+
+        return new DefaultInvokeChain(cacheInterceptors, invocation, cacheContext);
+    }
+
+    /**
+     * 获取并排序方法支持的拦截器列表
+     *
+     * @param invocation 方法
+     * @return 拦截器列表
+     */
+    private List<ICacheInterceptor> getAndSortMethodSupportedInterceptors(MethodInvocation
+                                                                                  invocation) {
+        List<ICacheInterceptor> methodSupportedInvocations = new ArrayList<>();
+        for (ICacheInterceptor cacheInterceptor : allSupportedInterceptor) {
+            if (cacheInterceptor.match(invocation)) {
+                methodSupportedInvocations.add(cacheInterceptor);
+            }
+        }
+
+        Collections.sort(methodSupportedInvocations, AnnotationAwareOrderComparator.INSTANCE);
+
+        methodSupportedInvocations.add(new OriginMethodInvocation());
+
+        return methodSupportedInvocations;
+    }
+
+    /**
+     * 原始方法调用
+     */
+    private static class OriginMethodInvocation implements ICacheInterceptor {
+
+        /**
+         * 调用
+         *
+         * @param invokeChain 调用链
+         * @return 返回结果
+         */
+        @Override
+        public Object invoke(IInvokeChain invokeChain, ICacheContext cacheContext) throws Throwable {
+            return invokeChain.getInvocation().proceed();
+        }
+
+        /**
+         * 是否匹配方法调用
+         *
+         * @param methodInvocation 方法调用
+         * @return 是否匹配
+         */
+        @Override
+        public boolean match(MethodInvocation methodInvocation) {
+            return true;
         }
     }
 

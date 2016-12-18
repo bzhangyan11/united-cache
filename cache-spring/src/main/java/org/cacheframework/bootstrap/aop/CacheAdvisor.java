@@ -4,6 +4,7 @@ package org.cacheframework.bootstrap.aop;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.cacheframework.context.ICacheContext;
 import org.cacheframework.context.IDispatchableCacheContext;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
@@ -27,7 +28,7 @@ public class CacheAdvisor extends DefaultPointcutAdvisor {
 
     private final IInvoker invoker;
 
-    private final IDispatchableCacheContext dispatchableCacheContext;
+    private final ICacheContext cacheContext;
 
     @Override
     public Pointcut getPointcut() {
@@ -40,10 +41,10 @@ public class CacheAdvisor extends DefaultPointcutAdvisor {
     }
 
     public CacheAdvisor(IMatchingMethodStrategy matchMethodStrategy, IInvoker invoker,
-                        IDispatchableCacheContext dispatchableCacheContext){
+                        ICacheContext cacheContext){
         this.matchMethodStrategy = matchMethodStrategy;
         this.invoker = invoker;
-        this.dispatchableCacheContext = dispatchableCacheContext;
+        this.cacheContext = cacheContext;
     }
 
     /**
@@ -66,7 +67,7 @@ public class CacheAdvisor extends DefaultPointcutAdvisor {
      * @return 返回值
      */
     protected Object doInvoke(MethodInvocation invocation){
-        return this.invoker.invoke(invocation,this.dispatchableCacheContext);
+        return this.invoker.invoke(invocation,this.cacheContext);
     }
 
     /**

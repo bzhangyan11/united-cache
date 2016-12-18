@@ -12,7 +12,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @Dscription： spring缓存启动引导器
@@ -46,6 +48,7 @@ public class CacheBootstrap {
     }
 
     @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public IInvoker invoker() {
         return this.getInvoker();
     }
@@ -57,7 +60,20 @@ public class CacheBootstrap {
      * @see DefaultInvoker
      */
     private IInvoker getInvoker() {
-        return new DefaultInvoker(this.cacheKeyResolver());
+        return new DefaultInvoker(this.getAllSupportedCacheInterceptor());
+    }
+
+    /**
+     * 支持的缓存拦截器列表
+     * @return 缓存拦截器列表
+     */
+    protected List<ICacheInterceptor> getAllSupportedCacheInterceptor(){
+        List<ICacheInterceptor> allSupportedCacheInterceptors = new ArrayList<>();
+
+        allSupportedCacheInterceptors.add(this.cacheAnnotationInterceptor());
+        allSupportedCacheInterceptors.add(this.cacheEventAnnotationInterceptor());
+
+        return allSupportedCacheInterceptors;
     }
 
     @Bean
@@ -76,6 +92,16 @@ public class CacheBootstrap {
     public ICacheKeyResolver getCacheKeyResolver(){
         return new CacheKeyResolverCachingComposite(Arrays.asList(voidCacheKeyResolver(),
                 interfaceCacheKeyResolver(),jsonCacheKeyResolver()));
+    }
+
+    @Bean
+    public CacheAnnotationInterceptor cacheAnnotationInterceptor(){
+        return new CacheAnnotationInterceptor(this.getCacheKeyResolver());
+    }
+
+    @Bean
+    public CacheEventAnnotationInterceptor cacheEventAnnotationInterceptor(){
+        return new CacheEventAnnotationInterceptor();
     }
 
     @Bean
@@ -102,19 +128,12 @@ public class CacheBootstrap {
      * @see OrMatchingMethodStrategyComposite
      */
     protected IMatchingMethodStrategy getMatchingMethodStrategy() {
-        return new OrMatchingMethodStrategyComposite(Arrays.asList
-                (cacheAnnotationMatchingMethodStrategy(),
-                        flushCacheAnnotationMatchingMethodStrategy()));
-    }
+        List<IMatchingMethodStrategy> matchingMethodStrategies = new ArrayList<>();
 
-    @Bean
-    public CacheAnnotationMatchingMethodStrategy cacheAnnotationMatchingMethodStrategy() {
-        return new CacheAnnotationMatchingMethodStrategy();
-    }
+        matchingMethodStrategies.add(this.cacheAnnotationInterceptor());
+        matchingMethodStrategies.add(this.cacheEventAnnotationInterceptor());
 
-    @Bean
-    public CacheContextEventAnnotationMatchingMethodStrategy flushCacheAnnotationMatchingMethodStrategy(){
-        return new CacheContextEventAnnotationMatchingMethodStrategy();
+        return new OrMatchingMethodStrategyComposite(matchingMethodStrategies);
     }
 
     @Bean
