@@ -6,8 +6,9 @@
 ### cache-spring
 </br>
 提供了与spring相集成的相关功能</br>
-需要启动可以在xml配置文件中加入</br>
+如果以XML方式进行配置，可以在配置文件中引入</br>
 bean class="org.cacheframework.bootstrap.CacheBootstrap" </br>
+如果以注解方式进行配置，可以在配置类上打上注解@EnableCache<br>
 具体使用可以看测试用例</br><br>
 扩展性
 
