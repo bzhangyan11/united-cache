@@ -34,6 +34,22 @@ public class CacheTest {
     @Autowired
     private InterfaceCacheKeyResolver interfaceCacheKeyResolver;
 
+    @Autowired
+    private IInterfaceTest interfaceTest;
+
+
+    @Test
+    public void testInterface() {
+        Assert.assertEquals(interfaceTest.increment(), interfaceTest.increment());
+
+        interfaceTest.increment();
+        int a = interfaceTest.increment();
+
+        interfaceTest.flush();
+
+        Assert.assertNotEquals(a, interfaceTest.increment());
+    }
+
     /**
      * 测试不带参数的缓存
      */
@@ -93,14 +109,15 @@ public class CacheTest {
     @Test
     public void testKeyResolver() throws NoSuchMethodException {
         Method method = CacheServiceTest.class.getMethod("autoIncrement");
-        Assert.assertEquals(this.voidCacheKeyResolver.resolve(method, null), method);
+        Assert.assertEquals(this.voidCacheKeyResolver.resolve(method, CacheServiceTest.class, null), method);
 
         Method method1 = CacheServiceTest.class.getMethod("autoIncrementWithParam", TestParam.class);
-        Assert.assertEquals(this.interfaceCacheKeyResolver.resolve(method1, new Object[]{new
+        Assert.assertEquals(this.interfaceCacheKeyResolver.resolve(method1, CacheServiceTest
+                .class, new Object[]{new
                 TestParam(1)}), 1);
 
         Method flushMethod = CacheServiceTest.class.getMethod("flush");
-        Assert.assertEquals(flushMethod, this.voidCacheKeyResolver.resolve(flushMethod, null));
+        Assert.assertEquals(flushMethod, this.voidCacheKeyResolver.resolve(flushMethod, CacheServiceTest.class, null));
     }
 
     /**

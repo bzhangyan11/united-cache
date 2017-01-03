@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
  * @Version：V1.0
  */
 @Order(10)
-public class CacheEventAnnotationInterceptor implements ICacheInterceptor,IMatchingMethodStrategy {
+public class CacheEventAnnotationInterceptor implements ICacheInterceptor, IMatchingMethodStrategy {
 
     /**
      * 调用
@@ -28,7 +28,7 @@ public class CacheEventAnnotationInterceptor implements ICacheInterceptor,IMatch
      */
     @Override
     public Object invoke(ICacheInterceptorChain invokeChain, ICacheContext cacheContext) throws Throwable {
-        if(cacheContext instanceof IDispatchableCacheContext){
+        if (cacheContext instanceof IDispatchableCacheContext) {
             ((IDispatchableCacheContext) cacheContext).fireCacheContextEvenet(buildCacheContextEvent
                     (invokeChain.getInvocation()));
         }
@@ -39,14 +39,17 @@ public class CacheEventAnnotationInterceptor implements ICacheInterceptor,IMatch
 
     /**
      * 构建缓存事件对象
+     *
      * @param invocation 调用对象
      * @return 缓存事件对象
      */
     private ICacheContextEvent buildCacheContextEvent(MethodInvocation invocation) {
-        return new DefaultCacheContextEvent(AnnotationUtils.findMetaAnnotaion(invocation.getMethod()
-                , CacheContextEvent.class).eventType(), invocation.getThis().getClass(),
-                invocation.getMethod(), invocation.getThis(), invocation.getArguments(),
-                AnnotationUtils.findAnnotation(invocation.getMethod(), CacheContextEvent.class));
+        return new DefaultCacheContextEvent(AnnotationUtils.findMetaAnnotaion(invocation
+                .getMethod(), invocation.getThis().getClass(), CacheContextEvent.class).eventType
+                (), invocation.getThis().getClass(), invocation.getMethod(), invocation.getThis()
+                , invocation.getArguments(),
+                AnnotationUtils.findAnnotation(invocation.getMethod(), invocation.getThis()
+                        .getClass(), CacheContextEvent.class));
     }
 
     /**
@@ -57,7 +60,7 @@ public class CacheEventAnnotationInterceptor implements ICacheInterceptor,IMatch
      */
     @Override
     public boolean match(MethodInvocation methodInvocation) {
-        return this.match(methodInvocation.getMethod(),methodInvocation.getThis().getClass());
+        return this.match(methodInvocation.getMethod(), methodInvocation.getThis().getClass());
     }
 
     /**
@@ -69,7 +72,6 @@ public class CacheEventAnnotationInterceptor implements ICacheInterceptor,IMatch
      */
     @Override
     public boolean match(Method method, Class<?> clz) {
-        return null != AnnotationUtils.findMetaAnnotaion(method,
-                CacheContextEvent.class);
+        return null != AnnotationUtils.findMetaAnnotaion(method, clz, CacheContextEvent.class);
     }
 }

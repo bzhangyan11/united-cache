@@ -2,8 +2,9 @@ package org.cacheframework.bootstrap.aop;
 
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.cacheframework.context.*;
+import org.cacheframework.context.ICacheContext;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class DefaultInvoker implements IInvoker {
 
     private final List<ICacheInterceptor> allSupportedInterceptor;
 
-    private final ConcurrentMap<Method, List<ICacheInterceptor>> cacheInterceptorCache = new
+    private final ConcurrentMap<CacheKey, List<ICacheInterceptor>> cacheInterceptorCache = new
             ConcurrentHashMap<>();
 
     public DefaultInvoker(List<ICacheInterceptor> allSupportedInterceptor) {
@@ -67,11 +68,11 @@ public class DefaultInvoker implements IInvoker {
      * @return 调用链
      */
     private ICacheInterceptorChain buildInvokeChain(MethodInvocation invocation, ICacheContext cacheContext) {
-        List<ICacheInterceptor> cacheInterceptors = this.cacheInterceptorCache.get(invocation.getMethod());
+        List<ICacheInterceptor> cacheInterceptors = this.cacheInterceptorCache.get(new CacheKey(invocation));
 
         if (null == cacheInterceptors) {
             cacheInterceptors = this.getAndSortMethodSupportedInterceptors(invocation);
-            this.cacheInterceptorCache.putIfAbsent(invocation.getMethod(), cacheInterceptors);
+            this.cacheInterceptorCache.putIfAbsent(new CacheKey(invocation), cacheInterceptors);
         }
 
         return new DefaultCacheInterceptorChain(cacheInterceptors, invocation, cacheContext);
@@ -97,6 +98,35 @@ public class DefaultInvoker implements IInvoker {
         methodSupportedInvocations.add(new OriginMethodInvocation());
 
         return methodSupportedInvocations;
+    }
+
+    private static class CacheKey {
+
+        private final Method method;
+
+        private final Class<?> clz;
+
+        public CacheKey(MethodInvocation invocation) {
+            this.method = invocation.getMethod();
+            Assert.notNull(this.method);
+            this.clz = invocation.getThis().getClass();
+            Assert.notNull(this.clz);
+        }
+
+        @Override
+        public int hashCode() {
+            return this.clz.hashCode() * 37 + this.method.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof CacheKey)) {
+                return false;
+            }
+
+            CacheKey anotherKey = (CacheKey) obj;
+            return this.clz == anotherKey.clz && this.method == anotherKey.method;
+        }
     }
 
     /**

@@ -31,15 +31,15 @@ public class CacheKeyResolverCachingComposite extends CacheKeyResolverComposite 
      * @return 是否支持
      */
     @Override
-    public boolean support(Method method) {
+    public boolean support(Method method, Class<?> targetClz) {
         Boolean isSupported = this.methodToIsSupportedMap.get(method);
-        if(null != isSupported){
+        if (null != isSupported) {
             return isSupported;
         }
 
-        isSupported = super.support(method);
+        isSupported = super.support(method, targetClz);
 
-        this.methodToIsSupportedMap.putIfAbsent(method,isSupported);
+        this.methodToIsSupportedMap.putIfAbsent(method, isSupported);
 
         return isSupported;
     }
@@ -51,14 +51,14 @@ public class CacheKeyResolverCachingComposite extends CacheKeyResolverComposite 
      * @return 缓存处理器
      */
     @Override
-    protected ICacheKeyResolver getSupportedCacheResolver(Method method) {
+    protected ICacheKeyResolver getSupportedCacheResolver(Method method, Class<?> targetClz) {
         ICacheKeyResolver cacheKeyResolver = this.methodToCacheKeyResolverMap.get(method);
         if (null != cacheKeyResolver) {
             return cacheKeyResolver;
         }
 
-        cacheKeyResolver = super.getSupportedCacheResolver(method);
-        if(null == cacheKeyResolver){
+        cacheKeyResolver = super.getSupportedCacheResolver(method, targetClz);
+        if (null == cacheKeyResolver) {
             throw new IllegalArgumentException("can't find a suitable cache key resolver");
         }
 

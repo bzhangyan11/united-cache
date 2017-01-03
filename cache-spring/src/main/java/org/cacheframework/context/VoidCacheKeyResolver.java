@@ -15,9 +15,9 @@ import java.util.concurrent.ConcurrentMap;
  * @Version：V1.0
  */
 @Order(10)
-public class VoidCacheKeyResolver implements ICacheKeyResolver{
+public class VoidCacheKeyResolver implements ICacheKeyResolver {
 
-    private final ConcurrentMap<Method,Boolean> supportedCacheMap = new
+    private final ConcurrentMap<Method, Boolean> supportedCacheMap = new
             ConcurrentHashMap<>();
 
     /**
@@ -37,7 +37,7 @@ public class VoidCacheKeyResolver implements ICacheKeyResolver{
      * @return 是否支持
      */
     @Override
-    public boolean support(Method method) {
+    public boolean support(Method method, Class<?> targetClz) {
         return checkIsSupported(method);
     }
 
@@ -49,11 +49,11 @@ public class VoidCacheKeyResolver implements ICacheKeyResolver{
      * @return 缓存key
      */
     @Override
-    public Object resolve(Method method, Object[] args) {
-        if(this.checkIsSupported(method)){
+    public Object resolve(Method method, Class<?> targetClz, Object[] args) {
+        if (this.checkIsSupported(method)) {
             return method;
         }
-        else{
+        else {
             throw new UnsupportedOperationException("method: " + method.getName() + " is " +
                     "Unsupported for this cache key resolver");
         }
@@ -61,18 +61,19 @@ public class VoidCacheKeyResolver implements ICacheKeyResolver{
 
     /**
      * 检查是否支持
+     *
      * @param method 方法
      * @return 是否支持
      */
-    private boolean checkIsSupported(Method method){
+    private boolean checkIsSupported(Method method) {
         Boolean isSupported = supportedCacheMap.get(method);
-        if(null != isSupported){
+        if (null != isSupported) {
             return isSupported;
         }
 
         isSupported = ArrayUtils.isEmpty(method.getParameterTypes());
 
-        supportedCacheMap.putIfAbsent(method,isSupported);
+        supportedCacheMap.putIfAbsent(method, isSupported);
 
         return isSupported;
     }

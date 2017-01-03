@@ -5,6 +5,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.cacheframework.annotation.Cache;
 import org.cacheframework.cache.GlobalSoftCache;
 import org.springframework.core.BridgeMethodResolver;
+import org.springframework.util.ClassUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -17,7 +18,7 @@ import java.lang.reflect.Method;
  */
 public class AnnotationUtils {
 
-    private static final Annotation NONE_ANNOTAION = new NoneAnnotation(){
+    private static final Annotation NONE_ANNOTAION = new NoneAnnotation() {
 
         @Override
         public String toString() {
@@ -38,40 +39,42 @@ public class AnnotationUtils {
      * @param metaAnnotationType 元注解类型
      * @return 注解信息
      */
-    public static Annotation findAnnotation(Method method, Class<? extends Annotation>
+    public static Annotation findAnnotation(Method method, Class<?> clz, Class<? extends Annotation>
             metaAnnotationType) {
-        if(null == method || null == metaAnnotationType){
+        if (null == method || null == metaAnnotationType) {
             throw new IllegalArgumentException("method or annotation type can't be null;");
         }
 
-        Annotation annotation = FIND_ANNOTATION_CACHE.getCache(getCacheKey(method, metaAnnotationType));
+        Annotation annotation = FIND_ANNOTATION_CACHE.getCache(getCacheKey(method, clz, metaAnnotationType));
         if (null != annotation) {
             return unwrapAnnotation(annotation);
         }
 
-        Method originMethod = BridgeMethodResolver.findBridgedMethod(method);
+        method = ClassUtils.getMostSpecificMethod(method, clz);
 
-        annotation = originMethod.getAnnotation(metaAnnotationType);
+        method = BridgeMethodResolver.findBridgedMethod(method);
+
+        annotation = method.getAnnotation(metaAnnotationType);
         if (null != annotation) {
-            FIND_ANNOTATION_CACHE.putCache(getCacheKey(method, metaAnnotationType), annotation);
+            FIND_ANNOTATION_CACHE.putCache(getCacheKey(method, clz, metaAnnotationType), annotation);
             return annotation;
         }
 
-        Annotation[] allAnnotations = originMethod.getAnnotations();
+        Annotation[] allAnnotations = method.getAnnotations();
         if (ArrayUtils.isEmpty(allAnnotations)) {
-            FIND_ANNOTATION_CACHE.putCache(getCacheKey(method, metaAnnotationType), NONE_ANNOTAION);
+            FIND_ANNOTATION_CACHE.putCache(getCacheKey(method, clz, metaAnnotationType), NONE_ANNOTAION);
             return null;
         }
 
         for (Annotation anno : allAnnotations) {
             Annotation cacheAnnotation = anno.annotationType().getAnnotation(metaAnnotationType);
             if (null != cacheAnnotation) {
-                FIND_ANNOTATION_CACHE.putCache(getCacheKey(method, metaAnnotationType), anno);
+                FIND_ANNOTATION_CACHE.putCache(getCacheKey(method, clz, metaAnnotationType), anno);
                 return anno;
             }
         }
 
-        FIND_ANNOTATION_CACHE.putCache(getCacheKey(method, metaAnnotationType), NONE_ANNOTAION);
+        FIND_ANNOTATION_CACHE.putCache(getCacheKey(method, clz, metaAnnotationType), NONE_ANNOTAION);
         return null;
     }
 
@@ -81,8 +84,8 @@ public class AnnotationUtils {
      * @param method 方法
      * @return 注解信息
      */
-    public static Annotation findCacheAnnotation(Method method) {
-        return findAnnotation(method, Cache.class);
+    public static Annotation findCacheAnnotation(Method method, Class<?> clz) {
+        return findAnnotation(method, clz, Cache.class);
     }
 
     /**
@@ -94,26 +97,30 @@ public class AnnotationUtils {
      * @return 注解信息
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T findMetaAnnotaion(Method method, Class<T>
+    public static <T extends Annotation> T findMetaAnnotaion(Method method, Class<?> clz, Class<T>
             annotationType) {
-        if(null == method || null == annotationType){
+        if (null == method || null == annotationType) {
             throw new IllegalArgumentException("method or annotation type can't be null;");
         }
 
-        Annotation annotation = FIND_META_ANNOTATION_CACHE.getCache(getCacheKey(method,
+        Annotation annotation = FIND_META_ANNOTATION_CACHE.getCache(getCacheKey(method, clz,
                 annotationType));
         if (null != annotation) {
             return (T) unwrapAnnotation(annotation);
         }
 
+        method = ClassUtils.getMostSpecificMethod(method, clz);
+
+        method = BridgeMethodResolver.findBridgedMethod(method);
+
         annotation = org.springframework.core.annotation.AnnotationUtils.getAnnotation(method,
                 annotationType);
         if (null == annotation) {
-            FIND_META_ANNOTATION_CACHE.putCache(getCacheKey(method, annotationType),
+            FIND_META_ANNOTATION_CACHE.putCache(getCacheKey(method, clz, annotationType),
                     NONE_ANNOTAION);
         }
         else {
-            FIND_META_ANNOTATION_CACHE.putCache(getCacheKey(method, annotationType), annotation);
+            FIND_META_ANNOTATION_CACHE.putCache(getCacheKey(method, clz, annotationType), annotation);
         }
 
         return (T) annotation;
@@ -125,12 +132,12 @@ public class AnnotationUtils {
      * @param method 方法
      * @return 元注解信息
      */
-    public static Cache findCacheMetaAnnotation(Method method) {
-        return findMetaAnnotaion(method, Cache.class);
+    public static Cache findCacheMetaAnnotation(Method method, Class<?> clz) {
+        return findMetaAnnotaion(method, clz, Cache.class);
     }
 
-    private static String getCacheKey(Method method, Class<?> annotationType) {
-        return method.getDeclaringClass().getName() + "." + method.getName() + "_" +
+    private static String getCacheKey(Method method, Class<?> clz, Class<?> annotationType) {
+        return clz.getName() + "." + method.getName() + "_" +
                 annotationType.getName();
     }
 

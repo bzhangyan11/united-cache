@@ -39,7 +39,7 @@ public class InterfaceCacheKeyResolver implements ICacheKeyResolver {
      * @return 是否支持
      */
     @Override
-    public boolean support(Method method) {
+    public boolean support(Method method, Class<?> targetClz) {
         Integer index = this.getIndexOfFirstSupportedParam(method);
         return null != this.unwrapIndex(index);
     }
@@ -52,7 +52,7 @@ public class InterfaceCacheKeyResolver implements ICacheKeyResolver {
      * @return 缓存key
      */
     @Override
-    public Object resolve(Method method, Object[] args) {
+    public Object resolve(Method method, Class<?> targetClz, Object[] args) {
         Integer index = this.getIndexOfFirstSupportedParam(method);
 
         index = this.unwrapIndex(index);

@@ -13,6 +13,8 @@
 
     <bean class="org.cacheframework.test.CacheServiceCopyTest"/>
 
+    <bean class="org.cacheframework.test.IInterfaceTestImpl"/>
+
     <aop:aspectj-autoproxy/>
 
 </beans>

@@ -34,7 +34,7 @@ public class JsonCacheKeyResolver implements ICacheKeyResolver {
      * @return 是否支持
      */
     @Override
-    public boolean support(Method method) {
+    public boolean support(Method method, Class<?> targetClz) {
         return !ArrayUtils.isEmpty(method.getParameterTypes());
     }
 
@@ -46,8 +46,8 @@ public class JsonCacheKeyResolver implements ICacheKeyResolver {
      * @return 缓存key
      */
     @Override
-    public Object resolve(Method method, Object[] args) {
-        if (!this.support(method)) {
+    public Object resolve(Method method, Class<?> targetClz, Object[] args) {
+        if (!this.support(method, targetClz)) {
             throw new IllegalArgumentException("unsupported method :" + method);
         }
 

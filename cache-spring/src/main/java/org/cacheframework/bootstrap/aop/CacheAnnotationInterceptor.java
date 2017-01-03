@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
  * @Version：V1.0
  */
 @Order(20)
-public class CacheAnnotationInterceptor implements ICacheInterceptor,IMatchingMethodStrategy{
+public class CacheAnnotationInterceptor implements ICacheInterceptor, IMatchingMethodStrategy {
 
     private static final Object NULL_OBJECT = new Object() {
         @Override
@@ -39,9 +39,11 @@ public class CacheAnnotationInterceptor implements ICacheInterceptor,IMatchingMe
      */
     @Override
     public Object invoke(ICacheInterceptorChain invokeChain, ICacheContext cacheContext) throws Throwable {
-        ICache cache = cacheContext.getCache(invokeChain.getInvocation().getMethod());
+        ICache cache = cacheContext.getCache(invokeChain.getInvocation().getMethod(), invokeChain
+                .getInvocation().getThis().getClass());
 
         Object key = cacheKeyResolver.resolve(invokeChain.getInvocation().getMethod(),
+                invokeChain.getInvocation().getThis().getClass(),
                 invokeChain.getInvocation().getArguments());
 
         Object result = null;
@@ -57,6 +59,7 @@ public class CacheAnnotationInterceptor implements ICacheInterceptor,IMatchingMe
 
         if (null != key) {
             cache.put(cacheKeyResolver.resolve(invokeChain.getInvocation().getMethod(),
+                    invokeChain.getInvocation().getThis().getClass(),
                     invokeChain.getInvocation().getArguments()), null == result ? NULL_OBJECT :
                     result);
         }
@@ -72,7 +75,7 @@ public class CacheAnnotationInterceptor implements ICacheInterceptor,IMatchingMe
      */
     @Override
     public boolean match(MethodInvocation methodInvocation) {
-        return this.match(methodInvocation.getMethod(),methodInvocation.getThis().getClass());
+        return this.match(methodInvocation.getMethod(), methodInvocation.getThis().getClass());
     }
 
     /**
@@ -84,7 +87,7 @@ public class CacheAnnotationInterceptor implements ICacheInterceptor,IMatchingMe
      */
     @Override
     public boolean match(Method method, Class<?> clz) {
-        return null != AnnotationUtils.findCacheMetaAnnotation(method) && void.class != method
+        return null != AnnotationUtils.findCacheMetaAnnotation(method, clz) && void.class != method
                 .getReturnType();
     }
 }

@@ -22,7 +22,7 @@ public class CacheKeyResolverComposite implements ICacheKeyResolver {
         List<ICacheKeyResolver> enableCacheKeyResolvers = new ArrayList<>();
 
         for (ICacheKeyResolver cacheKeyResolver : cacheKeyResolvers) {
-            if(cacheKeyResolver.enable()){
+            if (cacheKeyResolver.enable()) {
                 enableCacheKeyResolvers.add(cacheKeyResolver);
             }
         }
@@ -49,12 +49,12 @@ public class CacheKeyResolverComposite implements ICacheKeyResolver {
      * @return 是否支持
      */
     @Override
-    public boolean support(Method method) {
+    public boolean support(Method method, Class<?> targetClz) {
         if (cacheKeyResolvers.isEmpty()) {
             return false;
         }
 
-        return null != this.getSupportedCacheResolver(method);
+        return null != this.getSupportedCacheResolver(method, targetClz);
     }
 
     /**
@@ -63,9 +63,9 @@ public class CacheKeyResolverComposite implements ICacheKeyResolver {
      * @param method 方法
      * @return 缓存处理器
      */
-    protected ICacheKeyResolver getSupportedCacheResolver(Method method) {
+    protected ICacheKeyResolver getSupportedCacheResolver(Method method, Class<?> targetClz) {
         for (ICacheKeyResolver cacheKeyResolver : cacheKeyResolvers) {
-            if (cacheKeyResolver.support(method)) {
+            if (cacheKeyResolver.support(method, targetClz)) {
                 return cacheKeyResolver;
             }
         }
@@ -81,12 +81,12 @@ public class CacheKeyResolverComposite implements ICacheKeyResolver {
      * @return 缓存key
      */
     @Override
-    public Object resolve(Method method, Object[] args) {
-        ICacheKeyResolver cacheKeyResolver = this.getSupportedCacheResolver(method);
+    public Object resolve(Method method, Class<?> targetClz, Object[] args) {
+        ICacheKeyResolver cacheKeyResolver = this.getSupportedCacheResolver(method, targetClz);
         if (null == cacheKeyResolver) {
             throw new IllegalArgumentException("can't find matched cacheKeyResolver");
         }
 
-        return cacheKeyResolver.resolve(method, args);
+        return cacheKeyResolver.resolve(method, targetClz, args);
     }
 }

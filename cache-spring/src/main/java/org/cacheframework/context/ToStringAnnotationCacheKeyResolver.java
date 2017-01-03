@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
  * @Date:2016/12/13.10:11
  * @Version：V1.0
  */
-public class ToStringAnnotationCacheKeyResolver implements ICacheKeyResolver{
+public class ToStringAnnotationCacheKeyResolver implements ICacheKeyResolver {
 
     /**
      * 是否启用该缓存处理器
@@ -27,7 +27,7 @@ public class ToStringAnnotationCacheKeyResolver implements ICacheKeyResolver{
      * @return 是否支持
      */
     @Override
-    public boolean support(Method method) {
+    public boolean support(Method method, Class<?> targetClz) {
         return false;
     }
 
@@ -39,7 +39,7 @@ public class ToStringAnnotationCacheKeyResolver implements ICacheKeyResolver{
      * @return 缓存key
      */
     @Override
-    public Object resolve(Method method, Object[] args) {
+    public Object resolve(Method method, Class<?> targetClz, Object[] args) {
         return null;
     }
 }

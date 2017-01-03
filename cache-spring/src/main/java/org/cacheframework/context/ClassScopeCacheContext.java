@@ -40,7 +40,7 @@ public class ClassScopeCacheContext implements IDispatchableCacheContext,
      * @return 缓存
      */
     @Override
-    public ICache getCache(Method method) {
+    public ICache getCache(Method method, Class<?> clz) {
         if (null == method) {
             return null;
         }
@@ -56,12 +56,12 @@ public class ClassScopeCacheContext implements IDispatchableCacheContext,
                 return cache;
             }
 
-            Cache metaCache = AnnotationUtils.findCacheMetaAnnotation(method);
+            Cache metaCache = AnnotationUtils.findCacheMetaAnnotation(method, clz);
             if (null == metaCache) {
                 throw new IllegalArgumentException("can't find meta cache annotation");
             }
 
-            Annotation cacheAnnotation = AnnotationUtils.findCacheAnnotation(method);
+            Annotation cacheAnnotation = AnnotationUtils.findCacheAnnotation(method, clz);
             if (null == cacheAnnotation) {
                 throw new IllegalArgumentException("can't find cache annotation");
             }
@@ -93,8 +93,7 @@ public class ClassScopeCacheContext implements IDispatchableCacheContext,
      * @return 缓存工厂
      */
     @SuppressWarnings("unchecked")
-    private ICacheFactory<Annotation> getCacheFactoryFromApplicationContext(Cache
-                                                                                    metaCache) {
+    private ICacheFactory<Annotation> getCacheFactoryFromApplicationContext(Cache metaCache) {
         if (null == metaCache.cacheFactoryType() || StringUtils.isEmpty(metaCache.cacheFactoryName())) {
             throw new IllegalArgumentException("meta cache info error");
         }
