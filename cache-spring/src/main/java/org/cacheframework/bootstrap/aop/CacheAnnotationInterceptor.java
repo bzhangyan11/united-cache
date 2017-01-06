@@ -55,7 +55,7 @@ public class CacheAnnotationInterceptor implements ICacheInterceptor, IMatchingM
             return NULL_OBJECT == result ? null : result;
         }
 
-        result = invokeChain.getInvocation().proceed();
+        result = invokeChain.invokeNext();
 
         if (null != key) {
             cache.put(cacheKeyResolver.resolve(invokeChain.getInvocation().getMethod(),
