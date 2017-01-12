@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
-@CacheContextEvent(eventType = FlushCacheEvent.FlushCacheEventType.class)
+@CacheEvent(eventType = FlushCacheEvent.FlushCacheEventType.class)
 public @interface FlushCacheEvent {
 
     interface FlushCacheEventType extends IEventType {}

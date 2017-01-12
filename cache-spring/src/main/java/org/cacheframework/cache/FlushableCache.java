@@ -3,7 +3,7 @@ package org.cacheframework.cache;
 
 import org.cacheframework.annotation.FlushCacheEvent;
 import org.cacheframework.context.ICacheContextEvent;
-import org.cacheframework.context.ICacheContextListener;
+import org.cacheframework.context.ICacheEventListener;
 
 /**
  * @Dscription： 可刷新的缓存
@@ -11,7 +11,7 @@ import org.cacheframework.context.ICacheContextListener;
  * @Date:2016/12/14.15:05
  * @Version：V1.0
  */
-public class FlushableCache extends CacheAdapter implements ICacheContextListener {
+public class FlushableCache extends CacheAdapter implements ICacheEventListener {
     /**
      * 缓存上下文事件
      *

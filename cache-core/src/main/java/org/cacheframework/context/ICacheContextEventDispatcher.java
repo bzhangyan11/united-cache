@@ -18,6 +18,6 @@ public interface ICacheContextEventDispatcher {
      * 注册缓存事件监听者
      * @param cacheContextListener 缓存事件监听者
      */
-    void registerCacheContextEventListener(ICacheContextListener cacheContextListener);
+    void registerCacheContextEventListener(ICacheEventListener cacheContextListener);
 
 }

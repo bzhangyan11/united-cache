@@ -1,7 +1,7 @@
 package org.cacheframework.bootstrap.aop;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.cacheframework.annotation.CacheContextEvent;
+import org.cacheframework.annotation.CacheEvent;
 import org.cacheframework.context.DefaultCacheContextEvent;
 import org.cacheframework.context.ICacheContext;
 import org.cacheframework.context.ICacheContextEvent;
@@ -45,11 +45,11 @@ public class CacheEventAnnotationInterceptor implements ICacheInterceptor, IMatc
      */
     private ICacheContextEvent buildCacheContextEvent(MethodInvocation invocation) {
         return new DefaultCacheContextEvent(AnnotationUtils.findMetaAnnotaion(invocation
-                .getMethod(), invocation.getThis().getClass(), CacheContextEvent.class).eventType
+                .getMethod(), invocation.getThis().getClass(), CacheEvent.class).eventType
                 (), invocation.getThis().getClass(), invocation.getMethod(), invocation.getThis()
                 , invocation.getArguments(),
                 AnnotationUtils.findAnnotation(invocation.getMethod(), invocation.getThis()
-                        .getClass(), CacheContextEvent.class));
+                        .getClass(), CacheEvent.class));
     }
 
     /**
@@ -72,6 +72,6 @@ public class CacheEventAnnotationInterceptor implements ICacheInterceptor, IMatc
      */
     @Override
     public boolean match(Method method, Class<?> clz) {
-        return null != AnnotationUtils.findMetaAnnotaion(method, clz, CacheContextEvent.class);
+        return null != AnnotationUtils.findMetaAnnotaion(method, clz, CacheEvent.class);
     }
 }

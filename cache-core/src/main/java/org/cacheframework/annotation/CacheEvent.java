@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.ANNOTATION_TYPE,ElementType.METHOD})
 @Documented
-public @interface CacheContextEvent {
+public @interface CacheEvent {
 
     /**
      * 事件名称

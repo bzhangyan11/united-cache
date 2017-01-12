@@ -30,7 +30,7 @@ public class ClassScopeCacheContext implements IDispatchableCacheContext,
 
     private final ConcurrentMap<Method, ICache> cacheMap = new ConcurrentHashMap<>();
 
-    private final Set<ICacheContextListener> cacheContextListenerList = new
+    private final Set<ICacheEventListener> cacheContextListenerList = new
             CopyOnWriteArraySet<>();
 
     /**
@@ -73,8 +73,8 @@ public class ClassScopeCacheContext implements IDispatchableCacheContext,
 
             this.cacheMap.putIfAbsent(method, cache);
 
-            if (cache instanceof ICacheContextListener) {
-                this.registerCacheContextEventListener((ICacheContextListener) cache);
+            if (cache instanceof ICacheEventListener) {
+                this.registerCacheContextEventListener((ICacheEventListener) cache);
             }
 
             if (cache instanceof ICacheContextEventDispatcherAware) {
@@ -114,13 +114,13 @@ public class ClassScopeCacheContext implements IDispatchableCacheContext,
      */
     @Override
     public void fireCacheContextEvenet(ICacheContextEvent cacheEvent) {
-        for (ICacheContextListener cacheContextListener : this.cacheContextListenerList) {
+        for (ICacheEventListener cacheContextListener : this.cacheContextListenerList) {
             cacheContextListener.onEvent(cacheEvent);
         }
     }
 
     @Override
-    public void registerCacheContextEventListener(ICacheContextListener cacheContextListener) {
+    public void registerCacheContextEventListener(ICacheEventListener cacheContextListener) {
         this.cacheContextListenerList.add(cacheContextListener);
     }
 

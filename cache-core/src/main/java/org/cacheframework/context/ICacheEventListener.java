@@ -6,7 +6,7 @@ package org.cacheframework.context;
  * @Date:2016/12/13.15:28
  * @Version：V1.0
  */
-public interface ICacheContextListener {
+public interface ICacheEventListener {
 
     /**
      * 缓存上下文事件
