@@ -68,7 +68,7 @@ public class CacheServiceTest {
 }
 ~~~
 <br>
-另缓存事件也支持元注解扩展。<br>
+另缓存事件也支持元注解扩展，详例见下面的各个注解以及类<br>
 元注解:@CacheEvent:<br>
 扩展注解:@FlushCacheEvent<br>
 监听接口:ICacheEventListener<br>
