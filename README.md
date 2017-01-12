@@ -72,7 +72,12 @@ public class CacheServiceTest {
 元注解:@CacheEvent:<br>
 扩展注解:@FlushCacheEvent<br>
 监听接口:ICacheEventListener<br>
-监听实现:FlushableCache<br>
+监听实现:<br>
+缓存工厂中获取的缓存类实现监听接口将自动注册监听。例：FlushableCache<br>
+非缓存工厂获取的缓存类则需要显式注册
+~~~
+org.cacheframework.context.ICacheContextEventDispatcher#registerCacheContextEventListener
+~~~
 <br>
 ### 相比spring-cache的优点：
 <br>
