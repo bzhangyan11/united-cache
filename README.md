@@ -82,7 +82,7 @@ org.cacheframework.context.ICacheContextEventDispatcher#registerCacheContextEven
 ### 相比spring-cache的优点：
 <br>
 1.缓存注解使用元注解(@Cache)扩展而来，并且每个缓存注解对应一个缓存工厂，缓存工厂可通过缓存注解来解析缓存配置，每一个缓存注解的配置项互不相关，配置项非常灵活，完全自定义，用户可以根据自定客制化的缓存来定义缓存注解中的各种配置项。例如请求级别的缓存不关心过期时间，只关心缓存容量，而redis的缓存实现则关心过期时间，那么这两个注解的配置项可以完全不一样，完全自定义，而解析则在缓存工厂中进行，SPI方（缓存实现方）不需要关心配置信息怎么从方法中获取这一类底层细节。<br>
-2.缓存事件总线，spring-cache只有刷新缓存这个概念，而在本缓存框架中，刷新只是缓存事件中的一种，可以自己通过元注解(@CacheContextEvent)进行客制化，然后来进行处理。<br>
+2.缓存事件总线，spring-cache只有刷新缓存这个概念，而在本缓存框架中，刷新只是缓存事件中的一种，可以自己通过元注解(@CacheEvent)进行客制化，然后来进行处理。<br>
 3.额外的拦截处理，用户可以通过实现接口 ICacheInterceptor 自己定义想要拦截的感兴趣的方面，具体的扩展方式可参考 CacheBootstrap 中的注册方式。<br>
 4.本缓存的微核心为 org.cacheframework.bootstrap.aop.DefaultInvoker 它定义了一种对关心点的拦截和调用方式，整个框架都是基于此核心扩展而来，并且整个框架的各组件均在 CacheBootstrap 中暴露给用户，均可以进行复写和重用，扩展性较强，对第三方也非常友好。
 ### cache-guice
