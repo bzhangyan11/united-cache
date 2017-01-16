@@ -63,10 +63,11 @@ public class GlobalSoftCacheFactory implements ICacheFactory<SoftCache>{
 public class CacheServiceTest {
     
     @SoftCache
-    public void test(){
+    public void test(Param param){
     }
 }
 ~~~
+<br>缓存key值的获取。<br>根据参数获取缓存Key值有多种策略可供选择，他们都是ICacheKeyResolver（JsonCacheKeyResolver）接口的实现类。默认情况下会将打上缓存注解的方法的参数转化为JSON串作为key值，对于无参方法，则有默认key值（VoidCacheKeyResolver），还可使参数实现ICacheKey接口，那么这个口的getKey方法则为key值（InterfaceCacheKeyResolver），后续还会添加多种自带策略，客户端也可以自行扩展，见org.cacheframework.bootstrap.CacheBootstrap中的getCacheKeyResolver方法。<br>
 <br>
 另缓存事件也支持元注解扩展，详例见下面的各个注解以及类<br>
 元注解:@CacheEvent:<br>
