@@ -50,7 +50,6 @@ public class CacheBootstrap {
     }
 
     @Bean
-    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public IInvoker invoker() {
         return this.getInvoker();
     }
